@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>¡Gracias!</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .container {
+      text-align: center;
+      padding: 40px;
+    }
+
+    .title-box {
+      background-color: #4CAF50;
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+    }
+
+    .mensaje-final {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+
+    .emoji {
+      font-size: 3rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="title-box">
+      <h1 class="title-grande">¡Muchas gracias!</h1>
+    </div>
+    <p class="mensaje-final">Has terminado el sociograma. ¡Gracias por tu colaboración!</p>
+    <div class="emoji">🎉😊</div>
+  </div>
+
+  <script>
+    const respuestas = {
+      grupo: sessionStorage.getItem("grupo") || "5ºB",
+      alumno: sessionStorage.getItem("alumno") || "Nombre del Alumno",
+      elecciones: JSON.parse(sessionStorage.getItem("elecciones") || "[]")
+    };
+
+    fetch("../guardar_respuesta.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(respuestas)
+    })
+    .then(res => res.json())
+    .then(data => {
+      console.log("Respuesta guardada:", data);
+    })
+    .catch(err => {
+      console.error("Error al guardar la respuesta", err);
+    });
+  </script>
+</body>
+</html>
