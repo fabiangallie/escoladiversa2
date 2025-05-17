@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gestión de Grupos</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .tabs {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1em;
+    }
+    .tab-btn {
+      padding: 0.8em 1.5em;
+      margin: 0 0.5em;
+      border: none;
+      background-color: #d0e4ff;
+      cursor: pointer;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+    .tab-btn.active {
+      background-color: #4285f4;
+      color: white;
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .alumnos-lista {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+      padding: 0;
+      list-style: none;
+    }
+    .alumnos-lista li {
+      background-color: #f0f8ff;
+      padding: 0.5em;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+    }
+    .edit-alumnos-container {
+      max-height: 250px;
+      overflow-y: auto;
+      margin-top: 0.5em;
+      margin-bottom: 1em;
+      border: 1px solid #ccc;
+      padding: 0.5em;
+      border-radius: 8px;
+    }
+    .btn-eliminar {
+      margin-left: 5px;
+      color: red;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="title-box azul">
+      <h1 class="title-grande">Gestión de Grupos</h1>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab('crear')">Crear grupo</button>
+      <button class="tab-btn" onclick="mostrarTab('editar')">Editar grupo</button>
+    </div>
+
+    <!-- Crear grupo -->
+    <div id="crear" class="tab-content active">
+      <form class="form" id="grupo-form">
+        <label for="curso">Curso:</label>
+        <input type="text" id="curso" required />
+        <label for="fecha">Fecha:</label>
+        <input type="date" id="fecha" required />
+        <label for="alumno">Nombre del alumno:</label>
+        <input type="text" id="alumno" />
+        <button type="button" class="btn" onclick="añadirAlumno()">Añadir alumno</button>
+        <button type="submit" class="btn">Guardar grupo</button>
+      </form>
+      <ul class="alumnos-lista" id="lista-alumnos"></ul>
+    </div>
+
+    <!-- Editar grupo -->
+    <div id="editar" class="tab-content">
+      <form class="form">
+        <label for="grupo-select">Selecciona un grupo:</label>
+        <select id="grupo-select" onchange="cargarGrupoSeleccionado()">
+          <option value="">-- Elegir grupo --</option>
+        </select>
+      </form>
+      <div id="grupo-editable" style="margin-top: 1em;"></div>
+    </div>
+  </div>
+
+  <script>
+    let alumnos = [];
+
+    function mostrarTab(id) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      document.querySelector(`.tab-btn[onclick="mostrarTab('${id}')"]`).classList.add('active');
+      if (id === 'editar') cargarGruposDesdeServidor();
+    }
+
+    function añadirAlumno() {
+      const input = document.getElementById("alumno");
+      const nombre = input.value.trim();
+      if (nombre) {
+        alumnos.push(nombre);
+        input.value = "";
+        actualizarListaAlumnos();
+      }
+    }
+
+    function actualizarListaAlumnos() {
+      const lista = document.getElementById("lista-alumnos");
+      lista.innerHTML = "";
+      alumnos.forEach(nombre => {
+        const li = document.createElement("li");
+        li.textContent = nombre;
+        lista.appendChild(li);
+      });
+    }
+
+    document.getElementById("grupo-form").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const curso = document.getElementById("curso").value.trim();
+      const fecha = document.getElementById("fecha").value;
+      if (!curso || !fecha || alumnos.length === 0) {
+        alert("Completa todos los campos y añade al menos un alumno.");
+        return;
+      }
+      const clave = `${curso} - ${fecha}`;
+      const grupo = { curso, fecha, alumnos };
+      guardarGrupoEnServidor(grupo);
+      this.reset();
+      alumnos = [];
+      actualizarListaAlumnos();
+    });
+
+    function cargarGruposDesdeServidor() {
+      fetch("grupos.json")
+        .then(res => res.json())
+        .then(data => {
+          const select = document.getElementById("grupo-select");
+          select.innerHTML = `<option value="">-- Elegir grupo --</option>`;
+          for (const clave in data) {
+            const option = document.createElement("option");
+            option.value = clave;
+            option.textContent = clave;
+            select.appendChild(option);
+          }
+          window.gruposDesdeServidor = data;
+        })
+        .catch(err => {
+          alert("No se pudieron cargar los grupos del servidor.");
+          console.error(err);
+        });
+    }
+
+    function cargarGrupoSeleccionado() {
+      const clave = document.getElementById("grupo-select").value;
+      if (!clave || !window.gruposDesdeServidor) return;
+      const grupo = window.gruposDesdeServidor[clave];
+      document.getElementById("grupo-editable").innerHTML = `
+        <form class="form-edit">
+          <label>Curso:</label>
+          <input type="text" id="edit-curso" value="${grupo.curso}" />
+          <label>Fecha:</label>
+          <input type="date" id="edit-fecha" value="${grupo.fecha}" />
+          <label>Añadir alumno:</label>
+          <input type="text" id="nuevo-alumno" />
+          <button type="button" class="btn" onclick="añadirAlumnoEditado('${clave}')">Añadir alumno</button>
+          <h4>Alumnos:</h4>
+          <div class="edit-alumnos-container">
+            <ul class="alumnos-lista" id="edit-lista">
+              ${grupo.alumnos.map((nombre, i) => `
+                <li>${nombre}
+                  <span class="btn-eliminar" onclick="eliminarAlumnoEditado('${clave}', ${i})">x</span>
+                </li>`).join("")}
+            </ul>
+          </div>
+          <button type="button" class="btn" onclick="guardarCambiosGrupo('${clave}')">Guardar cambios</button>
+        </form>
+      `;
+    }
+
+    function añadirAlumnoEditado(clave) {
+      const input = document.getElementById("nuevo-alumno");
+      const nombre = input.value.trim();
+      if (!nombre) return;
+      window.gruposDesdeServidor[clave].alumnos.push(nombre);
+      cargarGrupoSeleccionado();
+    }
+
+    function eliminarAlumnoEditado(clave, index) {
+      window.gruposDesdeServidor[clave].alumnos.splice(index, 1);
+      cargarGrupoSeleccionado();
+    }
+
+    function guardarCambiosGrupo(claveOriginal) {
+      const nuevoCurso = document.getElementById("edit-curso").value.trim();
+      const nuevaFecha = document.getElementById("edit-fecha").value;
+      if (!nuevoCurso || !nuevaFecha) return alert("Completa todos los campos.");
+      const nuevaClave = `${nuevoCurso} - ${nuevaFecha}`;
+      const grupo = {
+        curso: nuevoCurso,
+        fecha: nuevaFecha,
+        alumnos: [...window.gruposDesdeServidor[claveOriginal].alumnos]
+      };
+      delete window.gruposDesdeServidor[claveOriginal];
+      window.gruposDesdeServidor[nuevaClave] = grupo;
+
+      fetch("guardar_grupo.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(window.gruposDesdeServidor)
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "ok") {
+          alert("Grupo actualizado.");
+          cargarGruposDesdeServidor();
+          document.getElementById("grupo-editable").innerHTML = "";
+        } else {
+          alert("Error al guardar cambios.");
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Error de conexión con el servidor.");
+      });
+    }
+
+    function guardarGrupoEnServidor(grupo) {
+      fetch("grupos.json")
+        .then(res => res.json())
+        .then(data => {
+          const clave = `${grupo.curso} - ${grupo.fecha}`;
+          data[clave] = grupo;
+          return fetch("guardar_grupo.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+          });
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === "ok") {
+            alert("Grupo guardado correctamente.");
+          } else {
+            alert("Error al guardar grupo.");
+          }
+        })
+        .catch(err => {
+          alert("Error de conexión con el servidor.");
+          console.error(err);
+        });
+    }
+  </script>
+</body>
+</html>

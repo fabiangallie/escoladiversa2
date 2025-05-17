@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Acceso Alumnado</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .form { display:flex; flex-direction:column; gap:1rem; min-height:200px; justify-content:center; }
+    select { padding:0.5rem; font-size:1rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="title-box azul">
+      <h1 class="title-grande">Alumnado</h1>
+    </div>
+
+    <div class="form">
+      <label for="selectGrupo">Grupo:</label>
+      <select id="selectGrupo" onchange="cargarAlumnos()">
+        <option value="">Selecciona un grupo</option>
+      </select>
+
+      <label for="selectAlumno">Nombre:</label>
+      <select id="selectAlumno" disabled onchange="habilitarComenzar()">
+        <option value="">Primero elige un grupo</option>
+      </select>
+
+      <button id="comenzar" class="btn" disabled onclick="acceder()">Comenzar test</button>
+    </div>
+  </div>
+
+  <script>
+    let grupos = {};   // Objeto con todos los grupos
+
+    /* --- Cargar grupos al iniciar --- */
+    fetch("grupos.json")
+      .then(res => res.json())
+      .then(data => {
+        grupos = data;
+        const selectGrupo = document.getElementById("selectGrupo");
+        Object.keys(grupos).forEach(clave => {
+          const op = document.createElement("option");
+          op.value = clave;
+          op.textContent = clave;
+          selectGrupo.appendChild(op);
+        });
+      })
+      .catch(err => {
+        alert("No se pudieron cargar los grupos (si estás fuera del servidor es normal).");
+        console.error(err);
+      });
+
+    /* --- Cuando elige grupo --- */
+    function cargarAlumnos() {
+      const grupoClave   = document.getElementById("selectGrupo").value;
+      const selectAlumno = document.getElementById("selectAlumno");
+      selectAlumno.innerHTML = '<option value="">-- Elige tu nombre --</option>';
+
+      if (grupoClave && grupos[grupoClave]) {
+        grupos[grupoClave].alumnos.forEach(nombre => {
+          const opt = document.createElement("option");
+          opt.value = nombre;
+          opt.textContent = nombre;
+          selectAlumno.appendChild(opt);
+        });
+        selectAlumno.disabled = false;
+      } else {
+        selectAlumno.disabled = true;
+      }
+      document.getElementById("comenzar").disabled = true; // hasta que elija nombre
+    }
+
+    /* --- Habilitar botón comenzar --- */
+    function habilitarComenzar() {
+      const alumnoSel = document.getElementById("selectAlumno").value;
+      document.getElementById("comenzar").disabled = !alumnoSel;
+    }
+
+    /* --- Acceder al test --- */
+    function acceder() {
+      const grupo  = document.getElementById("selectGrupo").value;
+      const alumno = document.getElementById("selectAlumno").value;
+      if (!grupo || !alumno) {
+        alert("Selecciona un grupo y tu nombre.");
+        return;
+      }
+      // Aquí rediriges al test, por ejemplo a preguntas1.html
+      // Puedes pasar grupo y alumno por querystring:
+      // location.href = `pregunta1.html?grupo=${encodeURIComponent(grupo)}&alumno=${encodeURIComponent(alumno)}`;
+
+      alert(`Bienvenido/a, ${alumno} del grupo ${grupo} (aquí se iniciaría el test)`);
+    }
+  </script>
+</body>
+</html>
+

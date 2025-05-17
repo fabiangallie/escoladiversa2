@@ -1,0 +1,45 @@
+{
+  "Grupo Test": {
+    "aula": {
+      "cohesion": 50,
+      "disociacion": 25,
+      "lap": 70,
+      "lan": 15,
+      "resumen": "Buen ambiente general",
+      "intervenciones": ["Actividad en grupo", "Taller emocional"]
+    },
+    "alumnos": [
+      {
+        "nombre": "Lucía García",
+        "indices": {
+          "np": 20,
+          "nn": 65,
+          "ipp": 35,
+          "imn": 70,
+          "ep": "Baja"
+        },
+        "resumen": "Lucía presenta bajo nivel de integración.",
+        "posicion": "Aislada",
+        "amistades": [],
+        "enemistades": [],
+        "oposiciones": []
+      },
+      {
+        "nombre": "Carlos Gómez",
+        "indices": {
+          "np": 70,
+          "nn": 10,
+          "ipp": 80,
+          "imn": 20,
+          "ep": "Alta"
+        },
+        "resumen": "Carlos es bien aceptado y tiene buena cohesión grupal.",
+        "posicion": "Líder",
+        "amistades": [],
+        "enemistades": [],
+        "oposiciones": []
+      }
+    ]
+  }
+}
+

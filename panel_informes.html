@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Panel de Informes Sociométricos</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    /* ——— LOS ESTILOS ORIGINALES NO SE HAN TOCADO ——— */
+    body{font-family:Arial,sans-serif;margin:0;padding:0;background:#fff}
+    header{background:#e0f0ff;padding:20px;text-align:center;box-shadow:0 2px 4px rgba(0,0,0,.1)}
+    header h1{margin:0;font-size:1.8em;color:#007acc}
+    nav{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin:10px}
+    nav button{padding:10px 20px;background:#007acc;color:#fff;border:none;border-radius:5px;cursor:pointer}
+    nav button:hover{background:#005fa3}
+    section{padding:20px;display:none}
+    .cuadro-titulo{background:#f2f8ff;border:1px solid #aaa;border-radius:5px;padding:10px;margin-bottom:10px}
+    .alumnos-selector{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px}
+    .alumnos-selector button{flex:1;min-width:100px;background:#2196f3;color:#fff;border:none;border-radius:5px;padding:10px;cursor:pointer}
+    .alumnos-selector button.seleccionado{background:#4caf50}
+    canvas{display:block;margin:0 auto 15px auto;max-width:100%;height:260px}
+    .boton-descargar{margin:10px 0;padding:8px 16px;background:#4caf50;color:#fff;border:none;border-radius:5px;cursor:pointer}
+    .boton-descargar:hover{background:#3e8e41}
+    .leyenda{font-size:.60em;color:#666;margin-top:10px;text-align:left;max-width:90%;margin-left:auto;margin-right:auto}
+    .bloque{margin-bottom:15px}
+    #cargaInicial{text-align:center;margin-top:30px}
+  </style>
+</head>
+<body>
+  <header><h1>Informes Sociométricos</h1></header>
+
+  <div id="cargaInicial">
+    <p><strong>Cargar archivo de grupo:</strong></p>
+    <input type="file" accept="application/json" id="inputJSON">
+    <br><br>
+    <label for="selectorGrupo">Seleccionar grupo:</label>
+    <select id="selectorGrupo"></select>
+  </div>
+
+  <nav id="menuNav" style="display:none;">
+    <button onclick="mostrarSeccion('aula')">Informe de Aula</button>
+    <button onclick="mostrarSeccion('individual')">Informes Individuales</button>
+  </nav>
+
+  <!-- ——— SECCIÓN AULA ——— -->
+  <section id="aula">
+    <div id="contenidoAula">
+      <canvas id="graficoCohesion"></canvas>
+      <div id="resumenAula"></div>
+      <h3>Propuesta de Intervención</h3>
+      <ul id="listaIntervencion"></ul>
+      <button class="boton-descargar" onclick="descargarPDF('contenidoAula','Informe_Aula.pdf')">Descargar Informe de Aula</button>
+    </div>
+  </section>
+
+  <!-- ——— SECCIÓN INDIVIDUAL ——— -->
+  <section id="individual">
+    <div class="alumnos-selector" id="selectorAlumnos"></div>
+    <div id="informeAlumnoContainer">
+      <div id="informeAlumno"></div>
+      <button id="btnDescargarAlumno" class="boton-descargar" style="display:none;" onclick="descargarPDF('informeAlumno','Informe_Alumno.pdf')">Descargar Informe Alumno</button>
+    </div>
+  </section>
+
+<script>
+/* -----------------   VARIABLES GLOBALES   ----------------- */
+let mapaIndice = {};          // índice de cursos / grupos   -> nombre de archivo
+let grupoActivo = null;       // datos completos del grupo cargado
+let alumnoSeleccionadoIndex = null;
+
+/* -----------------   CARGA DEL ÍNDICE DE RESULTADOS   ----------------- */
+window.addEventListener("DOMContentLoaded", () => {
+  fetch("index_resultados.json")
+    .then(r => r.json())
+    .then(idx => {
+      // index_resultados.json se guarda como { "curso": { "grupo": "archivo.json", ... }, ... }
+      mapaIndice = idx;
+      const sel = document.getElementById("selectorGrupo");
+      sel.innerHTML = '<option disabled selected value="">Selecciona un grupo</option>';
+
+      Object.entries(idx).forEach(([curso, grupos]) => {
+        Object.keys(grupos).forEach(gr => {
+          const op=document.createElement("option");
+          op.value = `${curso}|${gr}`;      // empaquetamos ambas claves
+          op.textContent = `${curso} — ${gr}`;
+          sel.appendChild(op);
+        });
+      });
+    })
+    .catch(err => {
+      alert("No se pudo cargar index_resultados.json");
+      console.error(err);
+    });
+});
+
+/* -----------------   CAMBIO DE GRUPO   ----------------- */
+selectorGrupo.onchange = () => {
+  const valor = selectorGrupo.value;
+  if(!valor) return;
+  const [curso, gr] = valor.split("|");
+  const archivo = mapaIndice?.[curso]?.[gr];
+  if(!archivo){
+    alert("No existe archivo para ese grupo.");
+    return;
+  }
+  fetch(archivo)
+    .then(r=>r.json())
+    .then(datos=>{
+      grupoActivo = datos;
+      document.getElementById("menuNav").style.display = "flex";
+      mostrarSeccion('aula');
+      cargarGraficoAula();
+      generarSelectorAlumnos();
+    })
+    .catch(err=>{
+      alert("No se pudo cargar el archivo de resultados.");
+      console.error(err);
+    });
+};
+
+/* -----------------   SECCIONES   ----------------- */
+function mostrarSeccion(sec){
+  document.getElementById("aula").style.display = (sec==="aula")?"block":"none";
+  document.getElementById("individual").style.display = (sec==="individual")?"block":"none";
+}
+
+/* -----------------   INFORME DE AULA   ----------------- */
+let grafAula=null;
+function cargarGraficoAula(){
+  if(!grupoActivo) return;
+  // Destruir gráfico previo
+  if(grafAula) grafAula.destroy();
+
+  const ctx=document.getElementById("graficoCohesion").getContext("2d");
+  grafAula = new Chart(ctx,{
+    type:"bar",
+    data:{
+      labels:["Cohesión","Disociación","Act. Positiva","Act. Negativa"],
+      datasets:[{
+        data:[
+          grupoActivo.aula.cohesion??0,
+          grupoActivo.aula.disociacion??0,
+          grupoActivo.aula.lap??0,
+          grupoActivo.aula.lan??0
+        ],
+        backgroundColor:["#4caf50","#f44336","#2196f3","#ff9800"]
+      }]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{display:false}},
+      scales:{y:{beginAtZero:true,max:100}}
+    }
+  });
+
+  document.getElementById("resumenAula").innerHTML=
+     `<p><strong>Resumen:</strong> ${grupoActivo.aula.resumen||"Sin resumen."}</p>`;
+  document.getElementById("listaIntervencion").innerHTML=
+     (grupoActivo.aula.intervenciones||[]).map(t=>`<li>${t}</li>`).join("");
+}
+
+/* -----------------   SELECTOR Y GRÁFICO INDIVIDUAL   ----------------- */
+function generarSelectorAlumnos(){
+  const cont=document.getElementById("selectorAlumnos"); cont.innerHTML="";
+  grupoActivo.alumnos.forEach((al,i)=>{
+    const crit = al.indices?.np<30 || al.indices?.nn>60 || al.indices?.ipp<40 || al.indices?.imn>60 || al.indices?.ep==="Baja";
+    const b=document.createElement("button");
+    b.textContent = crit ? `⚠️ ${al.nombre}` : al.nombre;
+    if(i===alumnoSeleccionadoIndex) b.classList.add("seleccionado");
+    b.onclick=()=>{
+      alumnoSeleccionadoIndex=i;
+      mostrarInformeAlumno(i);
+      generarSelectorAlumnos();
+    };
+    cont.appendChild(b);
+  });
+}
+
+function mostrarInformeAlumno(i){
+  const al=grupoActivo.alumnos[i];
+  const cont=document.getElementById("informeAlumno");
+  cont.innerHTML=`
+    <canvas id="graf${i}"></canvas>
+    <div class="leyenda">
+      <em>NP</em>=Popularidad&nbsp; <em>NN</em>=Rechazo&nbsp; <em>EP</em>=Sociabilidad …
+    </div><br>
+    <div class="bloque"><strong>Posición Sociométrica:</strong> ${al.posicion}</div>
+    <div class="bloque"><strong>Amistades:</strong> ${al.amistades?.map(a=>a.nombre).join(", ")||"Ninguna"}</div>
+    <div class="bloque"><strong>Enemistades:</strong> ${al.enemistades?.map(e=>e.nombre).join(", ")||"Ninguna"}</div>
+    <div class="bloque"><strong>Resumen:</strong> ${al.resumen||"—"}</div>
+  `;
+  document.getElementById("btnDescargarAlumno").style.display="inline-block";
+
+  const etiquetas=["np","nn","ep","ipp","imn"];
+  const datos=etiquetas.map(k=>al.indices?.[k]??0);
+  const colores=datos.map(v=>v>=70?"#4caf50":v<=30?"#f44336":"#ffc107");
+
+  const ctx=document.getElementById(`graf${i}`).getContext("2d");
+  new Chart(ctx,{
+    type:"bar",
+    data:{labels:etiquetas.map(e=>e.toUpperCase()),datasets:[{data:datos,backgroundColor:colores}]},
+    options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100}}}
+  });
+}
+
+/* -----------------   DESCARGA PDF   ----------------- */
+function descargarPDF(id, nombre){
+  const nodo=document.getElementById(id);
+  html2pdf().set({margin:10,filename:nombre,html2canvas:{scale:2},jsPDF:{unit:'mm',format:'a4'}}).from(nodo).save();
+}
+
+/* -----------------   CARGA DIRECTA DE ARCHIVO (opcional)   ----------------- */
+inputJSON.onchange = e=>{
+  const file=e.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const datos=JSON.parse(ev.target.result);
+      grupoActivo=datos;
+      document.getElementById("menuNav").style.display="flex";
+      mostrarSeccion('aula');
+      cargarGraficoAula();
+      generarSelectorAlumnos();
+    }catch(_){
+      alert("Archivo JSON inválido");
+    }
+  };
+  reader.readAsText(file);
+};
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

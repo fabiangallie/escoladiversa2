@@ -1,1 +1,1 @@
-# escoladiversa2
+# escoladiversa
