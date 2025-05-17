@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Repositorio Socioemocional - Vista Modular</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: sans-serif; background: #f4f7fb; color: #333; margin: 0; padding: 0; }
+    header { background: #007acc; color: white; padding: 1rem; text-align: center; }
+    h1 { margin: 0; font-size: 1.8rem; }
+    .nav-main { display: flex; justify-content: center; gap: 2rem; background: #e0f0ff; padding: 1rem; flex-wrap: wrap; }
+    .nav-main button { background: none; border: none; font-size: 1rem; cursor: pointer; color: #007acc; font-weight: bold; padding: 0.5rem 1rem; }
+    .container { max-width: 1000px; margin: auto; padding: 2rem; }
+    .group-section { display: none; text-align: center; }
+    .group-title { background: #007acc; color: white; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; font-size: 1.5rem; }
+    .competencias-grid { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; }
+    .competencia-box { background: white; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); padding: 1rem; width: 280px; }
+    .competencia-box h3 { color: #007acc; margin-top: 0; }
+    .subitems a { display: block; margin: 0.3rem 0; color: #007acc; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Repositorio Socioemocional - Vista Modular</h1>
+  </header>
+  <nav class="nav-main">
+    <button onclick="mostrarGrupo('emocional')">Educación Emocional</button>
+    <button onclick="mostrarGrupo('valores')">Educación en Valores</button>
+    <button onclick="mostrarGrupo('grupo')">Grupo y Aula</button>
+  </nav>
+
+  <div class="container">
+
+    <div id="emocional" class="group-section">
+      <div class="group-title">Educación Emocional</div>
+      <div class="competencias-grid">
+        <div class="competencia-box">
+          <h3>Autoestima</h3>
+          <div class="subitems">
+            <a href="dinamicas_autoestima.html">Dinámicas</a>
+            <a href="videos_autoestima.html">Vídeos</a>
+            <a href="tics_autoestima.html">Herramientas TIC</a>
+            <a href="publicaciones_autoestima.html">Publicaciones</a>
+          </div>
+        </div>
+        <div class="competencia-box">
+          <h3>Autoconocimiento</h3>
+          <div class="subitems">
+            <a href="#">Dinámicas</a>
+            <a href="#">Vídeos</a>
+            <a href="#">Herramientas TIC</a>
+            <a href="#">Publicaciones</a>
+          </div>
+        </div>
+        <div class="competencia-box">
+          <h3>Regulación emocional</h3>
+          <div class="subitems">
+            <a href="#">Dinámicas</a>
+            <a href="#">Vídeos</a>
+            <a href="#">Herramientas TIC</a>
+            <a href="#">Publicaciones</a>
+          </div>
+        </div>
+        <div class="competencia-box">
+          <h3>Asertividad</h3>
+          <div class="subitems">
+            <a href="#">Dinámicas</a>
+            <a href="#">Vídeos</a>
+            <a href="#">Herramientas TIC</a>
+            <a href="#">Publicaciones</a>
+          </div>
+        </div>
+        <div class="competencia-box">
+          <h3>Habilidades Sociales</h3>
+          <div class="subitems">
+            <a href="#">Dinámicas</a>
+            <a href="#">Vídeos</a>
+            <a href="#">Herramientas TIC</a>
+            <a href="#">Publicaciones</a>
+          </div>
+        </div>
+        <div class="competencia-box">
+          <h3>Empatía emocional</h3>
+          <div class="subitems">
+            <a href="#">Dinámicas</a>
+            <a href="#">Vídeos</a>
+            <a href="#">Herramientas TIC</a>
+            <a href="#">Publicaciones</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="valores" class="group-section">
+      <div class="group-title">Educación en Valores</div>
+      <div class="competencias-grid">
+        <div class="competencia-box">
+          <h3>Empatía</h3>
+          <div class="subitems">
+            <a href="#">Dinámicas</a>
+            <a href="#">Vídeos</a>
+            <a href="#">Herramientas TIC</a>
+            <a href="#">Publicaciones</a>
+          </div>
+        </div>
+        <div class="competencia-box">
+          <h3>Respeto</h3>
+          <div class="subitems">
+            <a href="#">Dinámicas</a>
+            <a href="#">Vídeos</a>
+            <a href="#">Herramientas TIC</a>
+            <a href="#">Publicaciones</a>
+          </div>
+        </div>
+        <div class="competencia-box">
+          <h3>Tolerancia</h3>
+          <div class="subitems">
+            <a href="#">Dinámicas</a>
+            <a href="#">Vídeos</a>
+            <a href="#">Herramientas TIC</a>
+            <a href="#">Publicaciones</a>
+          </div>
+        </div>
+        <div class="competencia-box">
+          <h3>Solidaridad</h3>
+          <div class="subitems">
+            <a href="#">Dinámicas</a>
+            <a href="#">Vídeos</a>
+            <a href="#">Herramientas TIC</a>
+            <a href="#">Publicaciones</a>
+          </div>
+        </div>
+        <div class="competencia-box">
+          <h3>Responsabilidad</h3>
+          <div class="subitems">
+            <a href="#">Dinámicas</a>
+            <a href="#">Vídeos</a>
+            <a href="#">Herramientas TIC</a>
+            <a href="#">Publicaciones</a>
+          </div>
+        </div>
+        <div class="competencia-box">
+          <h3>Cooperación</h3>
+          <div class="subitems">
+            <a href="#">Dinámicas</a>
+            <a href="#">Vídeos</a>
+            <a href="#">Herramientas TIC</a>
+            <a href="#">Publicaciones</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="grupo" class="group-section">
+      <div class="group-title">Grupo y Aula</div>
+      <div class="competencias-grid">
+        <div class="competencia-box">
+          <h3>Cohesión grupal</h3>
+          <div class="subitems">
+            <a href="#">Dinámicas</a>
+            <a href="#">Vídeos</a>
+            <a href="#">Herramientas TIC</a>
+            <a href="#">Publicaciones</a>
+          </div>
+        </div>
+        <div class="competencia-box">
+          <h3>Clima de aula</h3>
+          <div class="subitems">
+            <a href="#">Dinámicas</a>
+            <a href="#">Vídeos</a>
+            <a href="#">Herramientas TIC</a>
+            <a href="#">Publicaciones</a>
+          </div>
+        </div>
+        <div class="competencia-box">
+          <h3>Identidad colectiva</h3>
+          <div class="subitems">
+            <a href="#">Dinámicas</a>
+            <a href="#">Vídeos</a>
+            <a href="#">Herramientas TIC</a>
+            <a href="#">Publicaciones</a>
+          </div>
+        </div>
+        <div class="competencia-box">
+          <h3>Inclusión</h3>
+          <div class="subitems">
+            <a href="#">Dinámicas</a>
+            <a href="#">Vídeos</a>
+            <a href="#">Herramientas TIC</a>
+            <a href="#">Publicaciones</a>
+          </div>
+        </div>
+        <div class="competencia-box">
+          <h3>Resolución de conflictos</h3>
+          <div class="subitems">
+            <a href="#">Dinámicas</a>
+            <a href="#">Vídeos</a>
+            <a href="#">Herramientas TIC</a>
+            <a href="#">Publicaciones</a>
+          </div>
+        </div>
+        <div class="competencia-box">
+          <h3>Comunicación positiva</h3>
+          <div class="subitems">
+            <a href="#">Dinámicas</a>
+            <a href="#">Vídeos</a>
+            <a href="#">Herramientas TIC</a>
+            <a href="#">Publicaciones</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function mostrarGrupo(id) {
+      document.querySelectorAll('.group-section').forEach(sec => sec.style.display = 'none');
+      document.getElementById(id).style.display = 'block';
+    }
+  </script>
+</body>
+</html>
+
+
