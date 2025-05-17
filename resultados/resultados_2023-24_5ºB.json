@@ -1,0 +1,59 @@
+[
+  {
+    "aula": {
+      "cohesion": 68,
+      "disociacion": 22,
+      "lap": 74,
+      "lan": 15,
+      "resumen": "El grupo presenta buena cohesión general con niveles bajos de disociación. La actitud positiva es elevada.",
+      "intervenciones": [
+        "Fomentar la cooperación a través de dinámicas grupales.",
+        "Reforzar la empatía mediante actividades de roles.",
+        "Trabajar la participación del alumnado con menor integración."
+      ]
+    },
+    "alumnos": [
+      {
+        "nombre": "Lucía",
+        "posicion": "Popular",
+        "indices": {
+          "np": 85, "nn": 10, "ep": "Alta",
+          "pp": 70, "pap": 80,
+          "en": 5,  "pn": 10, "pan": 15,
+          "oip": 5, "oin": 0,
+          "ip": 60, "in": 15,
+          "imp": 75, "imn": 10,
+          "ipp": 82
+        },
+        "amistades": [
+          { "nombre": "Carlos", "valor": 3 },
+          { "nombre": "Sara",   "valor": 2 }
+        ],
+        "enemistades": [],
+        "oposiciones": [],
+        "resumen": "Lucía goza de una alta aceptación entre sus compañeros. Es una figura positiva para el grupo."
+      },
+      {
+        "nombre": "Juan",
+        "posicion": "Rechazado",
+        "indices": {
+          "np": 25, "nn": 70, "ep": "Baja",
+          "pp": 40, "pap": 35,
+          "en": 65, "pn": 70, "pan": 60,
+          "oip": 20, "oin": 40,
+          "ip": 25, "in": 70,
+          "imp": 20, "imn": 75,
+          "ipp": 30
+        },
+        "amistades": [],
+        "enemistades": [
+          { "nombre": "Lucía", "valor": 3 }
+        ],
+        "oposiciones": [
+          { "nombre": "Sara", "valor": 2 }
+        ],
+        "resumen": "Juan presenta indicadores de exclusión. Es recomendable intervenir en autoestima, empatía y dinámicas de grupo."
+      }
+    ]
+  }
+]
