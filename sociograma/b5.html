@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pregunta 3</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .nombres-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+
+    .nombre-item {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background-color: #f0f0f0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nombre-item img {
+      height: 30px;
+    }
+
+    .drop-zona {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .casilla {
+      width: 100px;
+      height: 60px;
+      border: 2px dashed #888;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      background-color: #fff;
+    }
+
+    .casilla span {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .centrado {
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="title-box azul">
+      <h1 class="title-grande">Pregunta 3</h1>
+      <h2 class="title-secundario">¿Quién crees que te escogerían para jugar en el recreo?</h2>
+    </div>
+
+    <div class="nombres-container" id="nombres">
+      <!-- Aquí se cargarán los nombres -->
+    </div>
+
+    <div class="drop-zona" id="zona-eleccion">
+      <div class="casilla" data-pos="1"><span>1º</span></div>
+      <div class="casilla" data-pos="2"><span>2º</span></div>
+      <div class="casilla" data-pos="3"><span>3º</span></div>
+      <div class="casilla" data-pos="4"><span>4º</span></div>
+      <div class="casilla" data-pos="5"><span>5º</span></div>
+    </div>
+
+    <div class="centrado">
+      <button class="btn" onclick="siguiente()">Siguiente</button>
+    </div>
+  </div>
+
+  <script>
+    const nombres = JSON.parse(localStorage.getItem("nombresGrupo") || "[]");
+    const contenedor = document.getElementById("nombres");
+
+    nombres.forEach(nombre => {
+      const item = crearItem(nombre);
+      contenedor.appendChild(item);
+    });
+
+    function crearItem(nombre) {
+      const item = document.createElement("div");
+      item.className = "nombre-item";
+      item.dataset.nombre = nombre;
+
+      const img = document.createElement("img");
+      img.src = "silueta1.png";
+      img.alt = "icono";
+
+      const texto = document.createElement("span");
+      texto.textContent = nombre;
+
+      item.appendChild(img);
+      item.appendChild(texto);
+
+      item.addEventListener("click", () => {
+        colocarEnCasilla(nombre);
+      });
+
+      return item;
+    }
+
+    function colocarEnCasilla(nombre) {
+      document.querySelectorAll(".casilla").forEach(c => {
+        const n = c.querySelector(".nombre-item");
+        if (n && n.dataset.nombre === nombre) {
+          c.innerHTML = `<span>${c.dataset.pos}º</span>`;
+        }
+      });
+
+      const vacía = [...document.querySelectorAll(".casilla")].find(c => !c.querySelector(".nombre-item"));
+      if (!vacía) return;
+
+      const nuevoItem = crearItem(nombre);
+      vacía.innerHTML = `<span>${vacía.dataset.pos}º</span>`;
+      vacía.appendChild(nuevoItem);
+    }
+
+    function siguiente() {
+      const elecciones = [];
+      document.querySelectorAll(".casilla").forEach(c => {
+        const n = c.querySelector(".nombre-item");
+        elecciones.push(n ? n.dataset.nombre : null);
+      });
+      localStorage.setItem("respuesta5", JSON.stringify(elecciones));
+      window.location.href = "b7.html";
+    }
+  </script>
+</body>
+</html>

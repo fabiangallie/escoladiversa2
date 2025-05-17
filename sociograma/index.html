@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bienvenida al Sociograma</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .test-opciones {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-top: 30px;
+    }
+    .test-opciones a {
+      padding: 12px 20px;
+      background-color: #007acc;
+      color: white;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+      text-decoration: none;
+    }
+    .test-opciones a:hover {
+      background-color: #005fa3;
+    }
+    .instrucciones {
+      margin-top: 20px;
+      text-align: left;
+      font-size: 1.1em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="corazon.png" alt="" class="logo" />
+
+    <div class="title-box">
+      <h1 class="title-grande">Bienvenido al Sociograma</h1>
+      <p id="nombre-usuario" style="font-weight: bold; font-size: 1.2em; color: #444;"></p>
+
+    </div>
+
+     <div class="consignas">
+      <h2>Antes de empezar, por favor, ten en cuenta:</h2>
+      <ul>
+        <li>No hay respuestas buenas ni malas. Sé sincero.</li>
+        <li>Este test es personal y confidencial.</li>
+        <li>Para cada pregunta podrás arrastrar hasta cinco compañeros/as a una caja por orden de preferencia.</li>
+        <li>Puedes arrastrar uno, dos, tres… hasta cinco, o incluso ninguno si lo prefieres.</li>
+        <li>Elige solo a quienes tú quieras, sin preocuparte por lo que elijan o digan los demás.</li>
+      </ul>
+    </div>
+
+    <div class="test-opciones">
+      <a href="b1.html">Test Básico</a>
+      <a href="pregunta1.html">Test Completo</a>
+      <a href="a1.html">Test Adaptado</a>
+    </div>
+  </div>
+  <script>
+  const nombre = localStorage.getItem("nombreAlumno");
+  if (nombre) {
+    document.getElementById("nombre-usuario").textContent = `Alumno/a: ${nombre}`;
+  }
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+

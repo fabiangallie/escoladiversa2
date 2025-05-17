@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pregunta 2</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .nombres-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+
+    .nombre-item {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background-color: #f0f0f0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      user-select: none;
+    }
+
+    .nombre-item img {
+      height: 30px;
+    }
+
+    .drop-zona {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .casilla {
+      width: 100px;
+      height: 60px;
+      border: 2px dashed #888;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      background-color: #fff;
+    }
+
+    .casilla span {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .centrado {
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="title-box azul">
+      <h1 class="title-grande">Pregunta 2</h1>
+      <h2 class="title-secundario">¿Con qué personas prefieres NO jugar en el recreo?</h2>
+    </div>
+
+    <div class="nombres-container" id="nombres">
+      <!-- Nombres se cargarán aquí -->
+    </div>
+
+    <div class="drop-zona" id="zona-eleccion">
+      <!-- Casillas numeradas -->
+      <div class="casilla" data-pos="1"><span>1º</span></div>
+      <div class="casilla" data-pos="2"><span>2º</span></div>
+      <div class="casilla" data-pos="3"><span>3º</span></div>
+      <div class="casilla" data-pos="4"><span>4º</span></div>
+      <div class="casilla" data-pos="5"><span>5º</span></div>
+    </div>
+
+    <div class="centrado">
+      <button class="btn" onclick="siguiente()">Siguiente</button>
+    </div>
+  </div>
+
+  <script>
+    const nombres = JSON.parse(localStorage.getItem("nombresGrupo") || "[]");
+    const contenedor = document.getElementById("nombres");
+
+    function crearItem(nombre) {
+      const item = document.createElement("div");
+      item.className = "nombre-item";
+      item.textContent = nombre;
+      item.dataset.nombre = nombre;
+
+      const img = document.createElement("img");
+      img.src = "silueta1.png";
+      img.alt = "icono";
+      item.prepend(img);
+
+      // Click en móvil o PC
+      item.addEventListener("click", () => {
+        // Evita duplicados
+        if (yaSeleccionado(nombre)) return;
+
+        // Encuentra la primera casilla vacía
+        const libre = [...document.querySelectorAll(".casilla")].find(c => !c.querySelector(".nombre-item"));
+        if (libre) {
+          const nuevo = crearItem(nombre);
+          libre.appendChild(nuevo);
+        }
+
+        // Elimina de la lista
+        item.remove();
+      });
+
+      return item;
+    }
+
+    function yaSeleccionado(nombre) {
+      return [...document.querySelectorAll(".casilla .nombre-item")].some(n => n.dataset.nombre === nombre);
+    }
+
+    nombres.forEach(nombre => {
+      const item = crearItem(nombre);
+      contenedor.appendChild(item);
+    });
+
+    document.querySelectorAll(".casilla").forEach(casilla => {
+      casilla.addEventListener("click", () => {
+        const item = casilla.querySelector(".nombre-item");
+        if (item) {
+          contenedor.appendChild(crearItem(item.dataset.nombre));
+          item.remove();
+        }
+      });
+    });
+
+    function siguiente() {
+      const elecciones = [];
+      document.querySelectorAll(".casilla").forEach(c => {
+        const n = c.querySelector(".nombre-item");
+        elecciones.push(n ? n.dataset.nombre : null);
+      });
+      localStorage.setItem("respuesta1", JSON.stringify(elecciones));
+      window.location.href = "b5.html";
+    }
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+

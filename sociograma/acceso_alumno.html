@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Acceso Alumnado</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      min-height: 200px; /* previene encogimiento */
+      justify-content: center;
+    }
+
+    select {
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="title-box azul">
+      <h1 class="title-grande">Alumnado</h1>
+    
+    </div>
+
+    <div class="form">
+      <label for="grupo">Grupo:</label>
+      <select id="grupo">
+        <option value="">Selecciona un grupo</option>
+      </select>
+
+      <label for="nombre">Nombre:</label>
+      <select id="nombre" disabled>
+        <option value="">Primero elige un grupo</option>
+      </select>
+
+      <button id="comenzar" class="btn" disabled>Comenzar test</button>
+    </div>
+  </div>
+
+  <script>
+    const grupoSelect = document.getElementById("grupo");
+    const nombreSelect = document.getElementById("nombre");
+    const comenzarBtn = document.getElementById("comenzar");
+    let grupos = {};
+
+    fetch("grupos.json")
+      .then(response => response.json())
+      .then(data => {
+        grupos = data;
+        for (const grupo in grupos) {
+          const option = document.createElement("option");
+          option.value = grupo;
+          option.textContent = grupo;
+          grupoSelect.appendChild(option);
+        }
+      });
+
+    grupoSelect.addEventListener("change", () => {
+      const grupo = grupoSelect.value;
+      nombreSelect.innerHTML = "";
+
+      if (!grupo) {
+        nombreSelect.disabled = true;
+        comenzarBtn.disabled = true;
+        nombreSelect.innerHTML = `<option value="">Primero elige un grupo</option>`;
+        return;
+      }
+
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.textContent = "Selecciona tu nombre";
+      placeholder.disabled = true;
+      placeholder.selected = true;
+      nombreSelect.appendChild(placeholder);
+
+      grupos[grupo].forEach(nombre => {
+        const option = document.createElement("option");
+        option.value = nombre;
+        option.textContent = nombre;
+        nombreSelect.appendChild(option);
+      });
+
+      nombreSelect.disabled = false;
+      comenzarBtn.disabled = true;
+    });
+
+    nombreSelect.addEventListener("change", () => {
+      comenzarBtn.disabled = !nombreSelect.value;
+    });
+
+    comenzarBtn.addEventListener("click", () => {
+      const grupo = grupoSelect.value;
+      const nombre = nombreSelect.value;
+      const nombresGrupo = grupos[grupo] || [];
+
+      localStorage.setItem("grupoSeleccionado", grupo);
+      localStorage.setItem("nombreAlumno", nombre);
+      localStorage.setItem("nombresGrupo", JSON.stringify(nombresGrupo.filter(n => n !== nombre)));
+
+      window.location.href = "sociograma/index.html";
+    });
+  </script>
+</body>
+</html>
